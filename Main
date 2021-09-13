@@ -1,0 +1,242 @@
+#include<bits/stdc++.h>
+using namespace std;
+int cur1, cur2;
+string  SHOW_STATUS(int i) {
+	switch (i) {
+		case 1:  return "Not Out";
+		case 2:  return "Bold Out";
+		case 3:  return "Caught Out";
+		case 4:  return "Run Out";
+		case 5:return "LBW Out";
+		case 6:return "Stupping";
+		default: return "Not played ";
+	}
+}
+class Player {
+	public:
+		string name;
+		int status;
+		int run;
+		int ball;
+		Player() {}
+		Player(string name, int status = 0, int run = 0, int ball = 0) {
+			this->name = name;
+			this->status = status;
+			this->run = run;
+			this->ball = ball;
+		}
+};
+class Team {
+public:
+    string name;
+    vector<Player> players;
+    int extraRun;
+    int totalRun;
+    Team() {}
+    Team(string name) {
+    	this->name = name;
+    	for(int i = 0; i < 11; i++) {
+    		string plr;
+    		cout << "Enter player " << i+1 << " name: ";
+    		cin >> plr;
+    		players.push_back(Player(plr));
+    	}
+    	extraRun = 0;
+       	totalRun = 0;
+    }
+    Team(string name, vector<Player> players) {
+    	this->name = name;
+       	this->players = players;
+       	extraRun = 0;
+       	totalRun = 0;
+    }
+};
+/***my score****/
+class Myscore {
+    int Ball_count;
+    int Over;
+    int Max_Over;
+    int Out;
+    int Max_out;
+    Team team1;
+    int extra;
+public:
+   	Myscore() {
+   		cout << "Enter Team name: ";
+   		string tname;
+   		cin >> tname;
+   		team1 = Team(tname);
+		Ball_count = extra = Over = Out = 0; Max_out = 10;
+		cout << "\nEnter no of Overs in one Innings: ";
+		cin >> Max_Over;
+		cout << "\n\nChoose opening Batsman(1-11): ";
+		while(1) {
+		    cout << "\n\t\tBatsman 1: ";       
+		    cin >> cur1;   
+		    team1.players[cur1-1].status = 1;            
+		    cout << "\t\tBatsman 2: ";
+		    cin >> cur2;
+		    team1.players[cur2-1].status = 1;
+		    if(cur1 > 11 || cur2 > 11 || cur1 == cur2)
+		    	cout << "Invalid Entry Try Again!! \n";
+		    else break;
+		}
+	}
+    void show();
+    void dot_ball();
+    void add_run();
+    void wicket();
+    void extra1();
+    void over_complete();
+};
+/*** Showing Entire Score ***/
+void Myscore::show() {
+	int option;
+	cout << "//////////////////////////////////////////////////" << endl;
+	cout << "                   " << team1.name << " Score                     " << endl;
+	cout << "//////////////////////////////////////////////////" << endl << endl;
+	for(int i = 1; i <= Max_out; i++) {
+	    cout << team1.players[i-1].name << "\t\t";
+	    cout << SHOW_STATUS(team1.players[i-1].status) << "\t\t";
+	    cout << team1.players[i-1].run;
+	    if(team1.players[i-1].status)
+	    	cout << "(" << team1.players[i-1].ball << ")";
+	    cout << endl;
+	}
+	cout << "\nExtra : "; cout << team1.extraRun << "\n\n";
+	cout << "\n--------------------------------------------------"<<endl;
+	cout << "Over: " << Over << "." << Ball_count << "\tWicket " << Out;
+	cout << "\tTotal Score: ";
+	cout << team1.totalRun << endl;
+	cout << "\nChoose option:";                  //Options for
+	cout << "\n\t1.Dot Ball";                    //Updating
+	cout << "\n\t2.Add Runs";                    //Score Card
+	cout << "\n\t3.Extra";
+	cout << "\n\t4.Wicket";
+	cout << "\n\t0.Exit\n";
+	cout << "\tEnter your option : ";
+	cin >> option;
+	switch (option) {
+	    case 1:
+	    	dot_ball(); break;
+	    case 2:
+	    	add_run(); break;
+	    case 3:
+	    	extra1(); break;
+	    case 4:
+	    	wicket(); break;
+	    case 0:
+	    	return;
+	    default: 
+	    	cout<<"\nInvalid input\n";
+	    	dot_ball();
+	    break;
+	}
+	//cleardevice();
+}
+/** One Dot Ball ***/
+void Myscore::dot_ball() {
+	cout << "\n\n******\n";
+	cout << "\t\tDot Ball\n";
+	cout << "****\n\n";
+	Ball_count++;
+	team1.players[cur1-1].ball++;
+	if(Ball_count == 6) {
+		over_complete();
+		return;
+	}
+	show();
+}
+/** Add Extra Run ****/
+void Myscore::extra1() {
+	cout << "\n\n******\n";
+	cout << "             Extra Run              \n";
+	cout << "****\n\n";
+	cout << "Extra : ";
+	cin >> extra;
+	team1.extraRun += extra;
+ 	team1.totalRun += extra;
+	show();
+}
+/** Add Current Player Run****/
+void Myscore::add_run() {
+	cout << "\n\n******\n";
+	cout << "             Add Run              \n";
+	cout << "****\n\n";
+	cout << "His scored runs : ";
+	int runs;
+	Ball_count++;
+	team1.players[cur1-1].ball++;
+	cin >> runs;
+	team1.players[cur1-1].run += runs;
+	team1.totalRun += runs;
+	if(runs == 1 || runs == 3) {
+	    swap(cur1, cur2);
+	}
+	if(Ball_count == 6) {
+		over_complete();
+		return;
+	}
+	show();
+}
+/** Over Complete ****/
+void Myscore::over_complete() {
+	cout << "\n\n*****\n";
+	cout << "           Over Complete\n";
+	cout << "*****\n";
+	Over++;
+	Ball_count=0;
+	swap(cur1, cur2);
+	if(Over == Max_Over) {
+		cout << "\n\n*****\n";
+		cout << "           Innings Complete\n";
+		cout << "*****\n";
+		return;
+	}
+	else {
+		show();
+	}
+}
+/*** Wicket Fallen ***/
+void Myscore::wicket() {
+	int o_type,new_player;
+	cout << "\n\n*****\n";
+	cout << "           Wicket\n";
+	cout << "*****\n";
+	cout << "\nWicket type: (Bold-1:Caught-2:Run_out:3:LBW_Out:4:Stupping-5).......";
+	cin >> o_type;
+	Out++;
+	Ball_count++;
+	team1.players[cur1-1].ball++;
+	if(Out >= Max_out) {
+		cout << "\n\n*****\n";
+		cout << "           Innings Complete\n";
+		cout << "*****\n";
+		team1.players[cur1-1].status = o_type+1;
+		SHOW_STATUS(team1.players[cur1-1].status);
+		return;
+	}
+	cout << "\n\t\tEnter next player(1-11): ";
+	cin >> new_player;
+	if(Ball_count == 6) {
+		team1.players[cur1-1].status = o_type+1;
+		SHOW_STATUS(team1.players[cur1-1].status);
+		cur1 = new_player;
+		team1.players[cur1-1].status = 1;
+		over_complete();
+		return;
+	}
+	team1.players[cur1-1].status = o_type+1;
+	SHOW_STATUS(team1.players[cur1-1].status);
+	cur1 = new_player;
+	team1.players[cur1-1].status = 1;
+	show();
+}
+
+/** Driver Function **/
+int main() {
+	cout<<"\tWelcome to live cricket score system\n";
+	Myscore MS;
+	MS.show();
+}
+
